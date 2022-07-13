@@ -57,7 +57,9 @@ namespace NuKeeper.AzureDevOps
             var fullUrl = BuildAzureDevOpsUri(url, previewApi);
             _logger.Detailed($"{caller}: Requesting {fullUrl}");
 
-            var response = await _client.GetAsync(fullUrl);
+            var tt = fullUrl.OriginalString.TrimStart(new[] { '/' });
+
+            var response = await _client.GetAsync(tt);
             return await HandleResponse<T>(response, caller);
         }
 

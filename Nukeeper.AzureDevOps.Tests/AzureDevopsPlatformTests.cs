@@ -11,13 +11,23 @@ namespace Nukeeper.AzureDevOps.Tests
     public class AzureDevOpsPlatformTests
     {
         [Test]
-        public void Initialise()
+        public void InitialiseAgain()
         {
             var httpClientFactory = Substitute.For<IHttpClientFactory>();
             httpClientFactory.CreateClient().Returns(new HttpClient());
 
             var platform = new AzureDevOpsPlatform(Substitute.For<INuKeeperLogger>(), httpClientFactory);
             platform.Initialise(new AuthSettings(new Uri("https://uri.com"), "token"));
+        }
+
+        [Test]
+        public void Initialise()
+        {
+            var httpClientFactory = Substitute.For<IHttpClientFactory>();
+            httpClientFactory.CreateClient().Returns(new HttpClient());
+
+            var platform = new AzureDevOpsPlatform(Substitute.For<INuKeeperLogger>(), httpClientFactory);
+            platform.Initialise(new AuthSettings(new Uri("https://uri.com/tfs"), "token"));
         }
     }
 }

@@ -2,7 +2,7 @@ namespace NuKeeper.Abstractions.CollaborationModels
 {
     public class User
     {
-        public static readonly User Default = new User("user@email.com", "", "");
+        public static readonly User Default = new User("user@email.com", "user", "");
 
         public User(string login, string name, string email)
         {
