@@ -24,6 +24,11 @@ namespace NuKeeper.AzureDevOps
         {
             _logger = logger;
 
+            //massage the apiBaseAddress so the trailing slash gets removed
+            //fixes issue with tfs/azure dev ops server on prem uri not using /tfs
+            var u = apiBaseAddress?.AbsoluteUri.TrimEnd(new[] { '/' });
+            var uri = new Uri(u);
+
             _client = clientFactory.CreateClient();
             _client.BaseAddress = apiBaseAddress;
             _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -57,7 +62,9 @@ namespace NuKeeper.AzureDevOps
             var fullUrl = BuildAzureDevOpsUri(url, previewApi);
             _logger.Detailed($"{caller}: Requesting {fullUrl}");
 
-            var response = await _client.GetAsync(fullUrl);
+            var tt = fullUrl.OriginalString.TrimStart(new[] { '/' });
+
+            var response = await _client.GetAsync(tt);
             return await HandleResponse<T>(response, caller);
         }
 

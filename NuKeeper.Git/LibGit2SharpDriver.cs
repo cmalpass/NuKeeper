@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using LibGit2Sharp;
 using NuKeeper.Abstractions;
@@ -19,6 +20,7 @@ namespace NuKeeper.Git
         private readonly Credentials _gitCredentials;
         private readonly Identity _identity;
         private bool _fetchFinished;
+        private readonly string _token;
 
         public IFolder WorkingFolder { get; }
 
@@ -34,7 +36,9 @@ namespace NuKeeper.Git
             {
                 throw new ArgumentNullException(nameof(credentials));
             }
-
+            var byteArray = Encoding.ASCII.GetBytes(":" + credentials.Password);
+            var encodedToken = Convert.ToBase64String(byteArray);
+            _token = encodedToken;
             _logger = logger;
             WorkingFolder = workingFolder;
             _gitCredentials = new UsernamePasswordCredentials
@@ -53,12 +57,24 @@ namespace NuKeeper.Git
             {
                 _logger.Normal($"Git clone {pullEndpoint}, branch {branchName ?? "default"}, to {WorkingFolder.FullPath}");
 
+                
+
                 Repository.Clone(pullEndpoint.AbsoluteUri, WorkingFolder.FullPath,
                     new CloneOptions
                     {
                         CredentialsProvider = UsernamePasswordCredentials,
                         OnTransferProgress = OnTransferProgress,
-                        BranchName = branchName
+                        BranchName = branchName,
+                        //Add basic auth PAT header here based on suggestion at
+                        //https://github.com/libgit2/libgit2sharp/issues/1596#issuecomment-1040113959
+                        //otherwise nukeeper doesn't work with TFS/Azure Dev Ops Server 2020
+                        FetchOptions = new FetchOptions
+                        {
+                            CustomHeaders = new []
+                            {
+                                $"Authorization: Basic {_token}"
+                            }
+                        }
                     });
 
                 _logger.Detailed("Git clone complete");
@@ -227,7 +243,11 @@ namespace NuKeeper.Git
 
                     repo.Network.Push(localBranch, new PushOptions
                     {
-                        CredentialsProvider = UsernamePasswordCredentials
+                        //removed credentials here based on suggestion at
+                        //https://stackoverflow.com/a/71419019/181976
+                        //otherwise nukeeper doesn't work with TFS/Azure Dev Ops Server 2020
+                        //CredentialsProvider = UsernamePasswordCredentials,
+
                     });
                 }
             });

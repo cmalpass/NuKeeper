@@ -21,7 +21,11 @@ namespace Nukeeper.AzureDevOps.Tests
         {
             var settings = new SourceControlServerSettings
             {
-                Repository = new RepositorySettings { RepositoryUri = new Uri("https://repo/") },
+                Repository = new RepositorySettings
+                {
+                    RepositoryUri = new Uri("https://repo/tfs"),
+                    ApiUri = new Uri("https://repo/tfs/_apis")
+                },
                 Scope = ServerScope.Repository
             };
 
