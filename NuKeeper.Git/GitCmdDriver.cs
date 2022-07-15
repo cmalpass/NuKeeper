@@ -90,7 +90,7 @@ namespace NuKeeper.Git
                 
                 
                 var branchparam = branchName == null ? "" : $" -b {branchName}";
-                var args = $"-c http.sslVerify=false {GeneratePatString(_gitCredentials.Password)} clone{branchparam} \"{pullEndpoint.AbsoluteUri}\" .";
+                var args = $"{GeneratePatString(_gitCredentials.Password)} clone{branchparam} \"{pullEndpoint.AbsoluteUri}\" .";
 
                 _logger.Normal(
                     $"Git {args}, branch {branchName ?? "default"}, to {WorkingFolder.FullPath}");
@@ -118,7 +118,7 @@ namespace NuKeeper.Git
         public async Task Push(string remoteName, string branchName)
         {
             _logger.Detailed($"Git push to {remoteName}/{branchName}");
-            await StartGitProcess($"-c http.sslVerify=false {GeneratePatString(_gitCredentials.Password)} push \"{remoteName}\" {branchName}", true);
+            await StartGitProcess($"{GeneratePatString(_gitCredentials.Password)} push \"{remoteName}\" {branchName}", true);
         }
 
         private  async Task<string> StartGitProcess(string arguments, bool ensureSuccess)
