@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using NuKeeper.Abstractions.Git;
 using NuKeeper.Abstractions.Inspections.Files;
@@ -39,7 +40,20 @@ namespace NuKeeper.Git
 
         public async Task AddRemote(string name, Uri endpoint)
         {
-            await StartGitProcess($"remote add {name} {CreateCredentialsUri(endpoint, _gitCredentials)}", true);
+            if (endpoint != null)
+            {
+                var uri = CreateCredentialsUri(endpoint, _gitCredentials);
+
+                await StartGitProcess($"remote add {name} {uri.AbsoluteUri}", true);
+            }
+        }
+
+        private static string GeneratePatString(string token)
+        {
+            var encoded = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{string.Empty}:{token}"));
+            var header = $"-c http.extraHeader=\"Authorization: Basic {encoded}\"";
+
+            return header;
         }
 
         public async Task Checkout(string branchName)
@@ -71,10 +85,20 @@ namespace NuKeeper.Git
 
         public async Task Clone(Uri pullEndpoint, string branchName)
         {
-            _logger.Normal($"Git clone {pullEndpoint}, branch {branchName ?? "default"}, to {WorkingFolder.FullPath}");
-            var branchparam = branchName == null ? "" : $" -b {branchName}";
-            await StartGitProcess($"clone{branchparam} {CreateCredentialsUri(pullEndpoint, _gitCredentials)} .", true); // Clone into current folder
-            _logger.Detailed("Git clone complete");
+            if (pullEndpoint != null)
+            {
+                
+                
+                var branchparam = branchName == null ? "" : $" -b {branchName}";
+                var args = $"{GeneratePatString(_gitCredentials.Password)} clone{branchparam} \"{pullEndpoint.AbsoluteUri}\" .";
+
+                _logger.Normal(
+                    $"Git {args}, branch {branchName ?? "default"}, to {WorkingFolder.FullPath}");
+
+                await StartGitProcess(args,
+                    true); // Clone into current folder
+                _logger.Detailed("Git clone complete");
+            }
         }
 
         public async Task Commit(string message)
@@ -94,7 +118,7 @@ namespace NuKeeper.Git
         public async Task Push(string remoteName, string branchName)
         {
             _logger.Detailed($"Git push to {remoteName}/{branchName}");
-            await StartGitProcess($"push {remoteName} {branchName}", true);
+            await StartGitProcess($"{GeneratePatString(_gitCredentials.Password)} push \"{remoteName}\" {branchName}", true);
         }
 
         private  async Task<string> StartGitProcess(string arguments, bool ensureSuccess)
@@ -111,7 +135,11 @@ namespace NuKeeper.Git
                 return pullEndpoint;
             }
 
-            return new UriBuilder(pullEndpoint) { UserName = Uri.EscapeDataString(gitCredentials.Username), Password = gitCredentials.Password }.Uri;
+            _logger.Detailed(gitCredentials.Username);
+
+            return pullEndpoint;
+            //return new UriBuilder(pullEndpoint)
+            //    { UserName = Uri.EscapeDataString(gitCredentials.Username), Password = gitCredentials.Password }.Uri;
         }
 
         public async Task<IReadOnlyCollection<string>> GetNewCommitMessages(string baseBranchName, string headBranchName)
