@@ -28,7 +28,7 @@ namespace NuKeeper.AzureDevOps
             _client.BaseAddress = apiBaseAddress;
             _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             _client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes($"{string.Empty}:{personalAccessToken}")));
+                new AuthenticationHeaderValue("Basic", Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes($"{string.Empty}:{personalAccessToken}")));
         }
 
         private async Task<T> PostResource<T>(string url, HttpContent content, bool previewApi = false, [CallerMemberName] string caller = null)

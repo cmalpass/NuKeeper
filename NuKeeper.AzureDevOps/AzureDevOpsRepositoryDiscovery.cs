@@ -40,7 +40,7 @@ namespace NuKeeper.AzureDevOps
 
                 case ServerScope.Repository:
                     
-                    settings.Repository.RepositoryUri = PasswordReplacedRepositoryUri(settings.Repository.RepositoryUri);
+                    //settings.Repository.RepositoryUri = PasswordReplacedRepositoryUri(settings.Repository.RepositoryUri);
                     return new List<RepositorySettings> { settings.Repository }.AsEnumerable();
 
                 default:
@@ -95,10 +95,11 @@ namespace NuKeeper.AzureDevOps
                 repo.UserPermissions.Pull;
         }
 
-        private RepositorySettings CreateRepositorySettings(string org, Uri repositoryUri, string project, string repoName, RemoteInfo remoteInfo = null) => new RepositorySettings
+        private static RepositorySettings CreateRepositorySettings(string org, Uri repositoryUri, string project, string repoName, RemoteInfo remoteInfo = null) => new RepositorySettings
         {
             ApiUri = string.IsNullOrWhiteSpace(org) ? new Uri($"https://dev.azure.com/") : new Uri($"https://dev.azure.com/{org}/"),
-            RepositoryUri = PasswordReplacedRepositoryUri(repositoryUri),
+            //RepositoryUri = PasswordReplacedRepositoryUri(repositoryUri),
+            RepositoryUri = repositoryUri,
             RepositoryName = repoName,
             RepositoryOwner = project,
             RemoteInfo = remoteInfo

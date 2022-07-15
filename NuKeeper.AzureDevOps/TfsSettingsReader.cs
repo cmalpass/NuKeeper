@@ -119,7 +119,7 @@ namespace NuKeeper.AzureDevOps
             {
                 ApiUri = new Uri($"{repositoryUri.Scheme}://{repositoryUri.Host}:{repositoryUri.Port}/{apiPathParts.JoinWithSeparator("/")}"),
                 RepositoryUri = new Uri(
-                    $"{repositoryUri.Scheme}://user:--PasswordToReplace--@{repositoryUri.Host}:{repositoryUri.Port}/{apiPathParts.JoinWithSeparator("/")}/{project}/_git/{repoName}/"),
+                    $"{repositoryUri.Scheme}://{repositoryUri.Host}:{repositoryUri.Port}/{apiPathParts.JoinWithSeparator("/")}/{project}/_git/{repoName}/"),
                 RepositoryName = repoName,
                 RepositoryOwner = project,
                 RemoteInfo = remoteInfo
